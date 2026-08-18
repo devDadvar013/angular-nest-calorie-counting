@@ -40,13 +40,11 @@ export class DashboardPage {
   readonly searchResults$ = this.foodService.results$;
   readonly searchQuery$ = this.foodService.query$;
 
-  readonly todayLabel = isPlatformBrowser(this.platformId)
-    ? new Date().toLocaleDateString('fa-IR', {
-        weekday: 'long',
-        day: 'numeric',
-        month: 'long',
-      })
-    : '';
+  readonly todayLabel = new Intl.DateTimeFormat('fa-IR-u-ca-persian', {
+    weekday: 'long',
+    day: 'numeric',
+    month: 'long',
+  }).format(new Date());
 
   readonly customForm = new FormGroup({
     name: new FormControl('', [Validators.required]),
