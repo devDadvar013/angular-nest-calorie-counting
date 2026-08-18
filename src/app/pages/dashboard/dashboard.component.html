@@ -1,0 +1,445 @@
+<app-navbar />
+
+<main class="mx-auto max-w-6xl px-4 pb-16">
+  <!-- سربرگ -->
+  <header class="mt-8 flex flex-wrap items-end justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-extrabold tracking-tight">
+        سلام، {{ (user$ | async)?.name }} 👋
+      </h1>
+      <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">{{ todayLabel }}</p>
+    </div>
+    <div class="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-300">
+      هدف روزانه:
+      <span class="font-bold text-slate-900 dark:text-white">{{ goal$ | async | faNum }}</span>
+      کیلوکالری
+    </div>
+  </header>
+
+  @if (totals$ | async; as t) {
+    <!-- کارت‌های خلاصه -->
+    <section class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-3">
+      <div class="card p-5">
+        <p class="text-sm text-slate-500 dark:text-slate-400">کالری مصرف‌شده</p>
+        <p class="mt-2 text-3xl font-extrabold">
+          {{ t.calories | faNum }}
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">کیلوکالری</span>
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <p class="text-sm text-slate-500 dark:text-slate-400">باقی‌مانده تا هدف</p>
+        <p class="mt-2 text-3xl font-extrabold" [class]="remainingClass(t.remaining)">
+          {{ t.remaining | faNum }}
+          <span class="text-sm font-medium text-slate-500 dark:text-slate-400">کیلوکالری</span>
+        </p>
+      </div>
+
+      <div class="card p-5">
+        <p class="text-sm text-slate-500 dark:text-slate-400">پیشرفت امروز</p>
+        <p class="mt-2 text-3xl font-extrabold">
+          {{ t.percent | faNum }}<span class="text-lg">٪</span>
+        </p>
+      </div>
+    </section>
+
+    <!-- نوار پیشرفت -->
+    <section class="card mt-4 p-5">
+      <div class="flex items-center justify-between text-sm">
+        <span class="text-slate-500 dark:text-slate-400">پیشرفت نسبت به هدف</span>
+        <span class="font-bold">{{ t.percent | faNum }}٪</span>
+      </div>
+      <div class="mt-3 h-3 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+        <div
+          class="h-full rounded-full transition-all duration-500"
+          [class]="barColor(t.percent)"
+          [style.width.%]="barWidth(t.percent)"
+        ></div>
+      </div>
+
+      <!-- درشت‌مغذی‌ها -->
+      <div class="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+              <span class="size-2 rounded-full bg-emerald-400"></span>
+              پروتئین
+            </span>
+            <span class="font-bold text-slate-700 dark:text-slate-200">
+              {{ t.protein | faNum:1 }} گرم · {{ t.macroPercent.protein | faNum }}٪
+            </span>
+          </div>
+          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              class="h-full rounded-full bg-emerald-400 transition-all duration-500"
+              [style.width.%]="t.macroPercent.protein"
+            ></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+              <span class="size-2 rounded-full bg-amber-400"></span>
+              کربوهیدرات
+            </span>
+            <span class="font-bold text-slate-700 dark:text-slate-200">
+              {{ t.carbs | faNum:1 }} گرم · {{ t.macroPercent.carbs | faNum }}٪
+            </span>
+          </div>
+          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              class="h-full rounded-full bg-amber-400 transition-all duration-500"
+              [style.width.%]="t.macroPercent.carbs"
+            ></div>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center justify-between text-xs">
+            <span class="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+              <span class="size-2 rounded-full bg-sky-400"></span>
+              چربی
+            </span>
+            <span class="font-bold text-slate-700 dark:text-slate-200">
+              {{ t.fat | faNum:1 }} گرم · {{ t.macroPercent.fat | faNum }}٪
+            </span>
+          </div>
+          <div class="mt-2 h-1.5 overflow-hidden rounded-full bg-slate-200 dark:bg-slate-800">
+            <div
+              class="h-full rounded-full bg-sky-400 transition-all duration-500"
+              [style.width.%]="t.macroPercent.fat"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  }
+
+  <!-- تنظیم هدف -->
+  <div class="mt-4 rounded-xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950/60">
+    <div class="flex items-center gap-2.5">
+      <span class="grid size-9 place-items-center rounded-xl bg-emerald-500/10 text-lg">🎯</span>
+      <div>
+        <p class="text-sm font-bold">تنظیم هدف روزانه</p>
+        <p class="text-[11px] text-slate-500 dark:text-slate-400">
+          مقدار کالری که می‌خواهید روزانه مصرف کنید
+        </p>
+      </div>
+    </div>
+
+    <form
+      [formGroup]="goalForm"
+      (ngSubmit)="saveGoal()"
+      class="mt-3 flex items-center gap-2"
+    >
+      <div class="relative flex-1">
+        <input
+          formControlName="goal"
+          type="number"
+          min="100"
+          step="50"
+          class="input-field pe-16"
+          aria-label="هدف روزانه (کیلوکالری)"
+        />
+        <span class="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+          کیلوکالری
+        </span>
+      </div>
+      <button
+        type="submit"
+        [disabled]="goalForm.invalid"
+        class="btn-primary shrink-0"
+      >
+        ذخیره
+      </button>
+    </form>
+
+    <div class="mt-3 flex flex-wrap items-center gap-1.5">
+      <span class="text-[11px] text-slate-500 dark:text-slate-400">پیشنهاد:</span>
+      @for (preset of goalPresets; track preset) {
+        <button
+          type="button"
+          (click)="applyGoalPreset(preset)"
+          [class]="presetClass(preset, goal$ | async)"
+        >
+          {{ preset | faNum }}
+        </button>
+      }
+    </div>
+  </div>
+
+  <!-- دو ستون اصلی -->
+  <section class="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+    <!-- افزودن غذا -->
+    <div class="card p-5">
+      <h2 class="flex items-center gap-2 text-lg font-bold">
+        <span class="grid size-8 place-items-center rounded-lg bg-emerald-500/10 text-base">🍽️</span>
+        افزودن غذا
+      </h2>
+
+      <!-- جستجو در کتابخانه -->
+      <div class="relative mt-4">
+        <svg
+          class="pointer-events-none absolute start-3.5 top-1/2 size-4 -translate-y-1/2 text-slate-400"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+        >
+          <circle cx="11" cy="11" r="7" />
+          <path d="m21 21-4.3-4.3" />
+        </svg>
+        <input
+          class="input-field ps-10"
+          placeholder="جستجو بین غذاها… (مثلاً برنج، مرغ، موز)"
+          [value]="searchQuery$ | async"
+          (input)="onSearch($event)"
+        />
+        @if (searchQuery$ | async) {
+          <button
+            type="button"
+            (click)="clearSearch()"
+            class="absolute end-3 top-1/2 grid size-5 -translate-y-1/2 place-items-center rounded-full bg-slate-200 text-[10px] text-slate-500 transition hover:bg-slate-300 dark:bg-slate-700 dark:text-slate-300 dark:hover:bg-slate-600"
+            aria-label="پاک کردن جستجو"
+          >
+            ✕
+          </button>
+        }
+      </div>
+
+      <ul class="mt-3 max-h-64 space-y-2 overflow-y-auto pe-1">
+        @for (item of searchResults$ | async; track item.id) {
+          <li
+            class="group flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 transition hover:border-emerald-500/50 hover:bg-emerald-500/5 dark:border-slate-800 dark:bg-slate-950/60 dark:hover:border-emerald-500/40"
+          >
+            <div class="min-w-0">
+              <p class="truncate text-sm font-medium">{{ item.name }}</p>
+              <p class="mt-1 flex items-center gap-1.5 text-xs">
+                <span class="font-bold text-slate-700 dark:text-slate-200">
+                  {{ item.calories | faNum }}
+                </span>
+                <span class="text-slate-500 dark:text-slate-400">کیلوکالری</span>
+              </p>
+              <p class="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px] text-slate-500 dark:text-slate-400">
+                <span class="flex items-center gap-1">
+                  <span class="size-1.5 rounded-full bg-emerald-400"></span>
+                  پروتئین {{ item.protein | faNum:1 }} گرم
+                </span>
+                <span class="text-slate-300 dark:text-slate-600">·</span>
+                <span class="flex items-center gap-1">
+                  <span class="size-1.5 rounded-full bg-amber-400"></span>
+                  کربوهیدرات {{ item.carbs | faNum:1 }} گرم
+                </span>
+                <span class="text-slate-300 dark:text-slate-600">·</span>
+                <span class="flex items-center gap-1">
+                  <span class="size-1.5 rounded-full bg-sky-400"></span>
+                  چربی {{ item.fat | faNum:1 }} گرم
+                </span>
+              </p>
+            </div>
+            <button
+              type="button"
+              (click)="addFromLibrary(item)"
+              title="افزودن به امروز"
+              class="grid size-8 shrink-0 place-items-center rounded-lg bg-emerald-600 text-lg font-bold text-white shadow-sm shadow-emerald-600/30 transition hover:bg-emerald-500 active:scale-95"
+            >
+              +
+            </button>
+          </li>
+        } @empty {
+          <li class="py-8 text-center text-sm text-slate-500">🔍 نتیجه‌ای یافت نشد.</li>
+        }
+      </ul>
+
+      <!-- فرم غذای سفارشی -->
+      <div class="mt-5 rounded-xl border border-dashed border-slate-300 p-4 dark:border-slate-700">
+        <div class="flex items-center justify-between gap-2">
+          <p class="flex items-center gap-2 text-sm font-bold">
+            <span class="grid size-6 place-items-center rounded-md bg-violet-500/10 text-xs">🧑‍🍳</span>
+            غذای سفارشی
+          </p>
+          <span class="text-[10px] text-slate-500 dark:text-slate-400">به ازای ۱۰۰ گرم</span>
+        </div>
+        <p class="mt-1.5 text-xs leading-relaxed text-slate-500 dark:text-slate-400">
+          اسم غذا را بنویسید و مقدار کالری و درشت‌مغذی‌هایش را وارد کنید.
+        </p>
+
+        <form [formGroup]="customForm" (ngSubmit)="addCustom()" class="mt-4 space-y-3">
+          <div>
+            <label for="custom-name" class="mb-1.5 block text-xs font-semibold text-slate-600 dark:text-slate-300">
+              نام غذا
+            </label>
+            <input
+              id="custom-name"
+              formControlName="name"
+              class="input-field"
+              placeholder="مثلاً: عدس‌پلو، اسموتی، پیتزا…"
+            />
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div>
+              <label for="custom-calories" class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <span class="size-1.5 rounded-full bg-violet-400"></span>
+                کالری
+              </label>
+              <div class="relative">
+                <input
+                  id="custom-calories"
+                  formControlName="calories"
+                  type="number"
+                  min="0"
+                  class="input-field pe-14"
+                />
+                <span class="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">
+                  کیلوکالری
+                </span>
+              </div>
+            </div>
+
+            <div>
+              <label for="custom-protein" class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <span class="size-1.5 rounded-full bg-emerald-400"></span>
+                پروتئین
+              </label>
+              <div class="relative">
+                <input
+                  id="custom-protein"
+                  formControlName="protein"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  class="input-field pe-10"
+                />
+                <span class="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">گرم</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="custom-carbs" class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <span class="size-1.5 rounded-full bg-amber-400"></span>
+                کربوهیدرات
+              </label>
+              <div class="relative">
+                <input
+                  id="custom-carbs"
+                  formControlName="carbs"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  class="input-field pe-10"
+                />
+                <span class="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">گرم</span>
+              </div>
+            </div>
+
+            <div>
+              <label for="custom-fat" class="mb-1.5 flex items-center gap-1.5 text-xs font-semibold text-slate-600 dark:text-slate-300">
+                <span class="size-1.5 rounded-full bg-sky-400"></span>
+                چربی
+              </label>
+              <div class="relative">
+                <input
+                  id="custom-fat"
+                  formControlName="fat"
+                  type="number"
+                  min="0"
+                  step="0.1"
+                  class="input-field pe-10"
+                />
+                <span class="pointer-events-none absolute end-3 top-1/2 -translate-y-1/2 text-[10px] text-slate-400">گرم</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- پیش‌نمایش زنده -->
+          @if (customPreview$ | async; as p) {
+            <div class="rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 dark:border-slate-800 dark:bg-slate-800/40">
+              @if (p.name) {
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs">
+                  <span class="text-slate-500 dark:text-slate-400">پیش‌نمایش «{{ p.name }}»:</span>
+                  <span class="font-bold text-slate-700 dark:text-slate-200">
+                    {{ p.calories | faNum }}
+                    <span class="font-normal text-slate-500 dark:text-slate-400">کیلوکالری</span>
+                  </span>
+                  <span class="font-semibold text-emerald-600 dark:text-emerald-400">پ {{ p.protein | faNum:1 }} گرم</span>
+                  <span class="font-semibold text-amber-600 dark:text-amber-400">ک {{ p.carbs | faNum:1 }} گرم</span>
+                  <span class="font-semibold text-sky-600 dark:text-sky-400">چ {{ p.fat | faNum:1 }} گرم</span>
+                </div>
+              } @else {
+                <p class="text-xs text-slate-500 dark:text-slate-400">
+                  نام غذا را بنویسید تا پیش‌نمایش اینجا ظاهر شود ✨
+                </p>
+              }
+            </div>
+          }
+
+          <button
+            type="submit"
+            [disabled]="customForm.invalid"
+            class="btn-primary flex w-full items-center justify-center gap-1.5"
+          >
+            <span class="text-lg leading-none">+</span>
+            افزودن به غذای امروز
+          </button>
+          <p class="text-center text-[11px] text-slate-500">
+            نام غذا و کالری (حداقل ۱) الزامی است.
+          </p>
+        </form>
+      </div>
+    </div>
+
+    <!-- وعده‌های امروز -->
+    <div class="card p-5">
+      <div class="flex items-center justify-between">
+        <h2 class="text-lg font-bold">غذای امروز</h2>
+        <button
+          type="button"
+          (click)="clearToday()"
+          class="text-xs text-slate-500 transition hover:text-rose-400"
+        >
+          پاک کردن همه
+        </button>
+      </div>
+
+      <ul class="mt-4 space-y-2">
+        @for (entry of entries$ | async; track entry.id) {
+          <li
+            [attr.data-entry-id]="entry.id"
+            class="flex scroll-mt-24 items-center justify-between gap-3 rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 dark:border-slate-800 dark:bg-slate-950/60"
+          >
+            <div class="min-w-0">
+              <p class="truncate font-medium">{{ entry.name }}</p>
+              <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                پروتئین {{ entry.protein | faNum:1 }} گرم ·
+                کربوهیدرات {{ entry.carbs | faNum:1 }} گرم ·
+                چربی {{ entry.fat | faNum:1 }} گرم
+              </p>
+            </div>
+            <div class="flex shrink-0 items-center gap-3">
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">
+                {{ entry.calories | faNum }}
+              </span>
+              <button
+                type="button"
+                (click)="remove(entry.id)"
+                class="grid size-7 place-items-center rounded-lg text-slate-500 transition hover:bg-rose-500/10 hover:text-rose-400"
+                aria-label="حذف"
+              >
+                ✕
+              </button>
+            </div>
+          </li>
+        } @empty {
+          <li
+            class="rounded-xl border border-dashed border-slate-300 py-10 text-center text-sm text-slate-500 dark:border-slate-800"
+          >
+            هنوز غذایی اضافه نکرده‌اید 😋
+          </li>
+        }
+      </ul>
+    </div>
+  </section>
+</main>

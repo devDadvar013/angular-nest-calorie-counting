@@ -1,0 +1,54 @@
+<app-navbar />
+
+<main class="mx-auto max-w-6xl px-4 pb-16">
+  <header class="mt-8">
+    <h1 class="text-2xl font-extrabold tracking-tight">فهرست غذاها</h1>
+    <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">
+      مقادیر تقریبی به ازای ۱۰۰ گرم — با دکمه «افزودن» به وعده‌های امروز اضافه
+      کنید
+    </p>
+  </header>
+
+  <input
+    class="input-field mt-6 max-w-md"
+    placeholder="جستجو در غذاها…"
+    (input)="onSearch($event)"
+  />
+
+  <section class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    @for (item of results$ | async; track item.id) {
+      <div class="card flex flex-col p-5">
+        <div class="flex items-start justify-between gap-3">
+          <h2 class="text-lg font-bold">{{ item.name }}</h2>
+          <span class="shrink-0 rounded-lg bg-slate-200 px-2 py-1 text-xs font-bold text-emerald-600 dark:bg-slate-800 dark:text-emerald-400">
+            {{ item.calories | faNum }} کیلوکالری
+          </span>
+        </div>
+
+        <div class="mt-4 flex flex-wrap gap-2 text-xs">
+          <span class="rounded-lg bg-emerald-500/10 px-2.5 py-1 font-semibold text-emerald-700 dark:text-emerald-300">
+            پ {{ item.protein | faNum:1 }} گرم
+          </span>
+          <span class="rounded-lg bg-amber-500/10 px-2.5 py-1 font-semibold text-amber-700 dark:text-amber-300">
+            ک {{ item.carbs | faNum:1 }} گرم
+          </span>
+          <span class="rounded-lg bg-sky-500/10 px-2.5 py-1 font-semibold text-sky-700 dark:text-sky-300">
+            چ {{ item.fat | faNum:1 }} گرم
+          </span>
+        </div>
+
+        <button
+          type="button"
+          (click)="add(item)"
+          class="btn-primary mt-5 w-full py-2 text-sm"
+        >
+          + افزودن به امروز
+        </button>
+      </div>
+    } @empty {
+      <p class="col-span-full py-16 text-center text-sm text-slate-500">
+        نتیجه‌ای یافت نشد.
+      </p>
+    }
+  </section>
+</main>

@@ -1,0 +1,76 @@
+<header
+  class="sticky top-0 z-10 border-b border-slate-200 bg-white/80 backdrop-blur dark:border-slate-800 dark:bg-slate-950/80"
+>
+  <nav class="mx-auto flex max-w-6xl items-center justify-between px-4 py-3">
+    <div class="flex items-center gap-6">
+      <a
+        routerLink="/dashboard"
+        class="flex items-center gap-2 text-lg font-extrabold tracking-tight"
+      >
+        <span
+          class="grid size-9 place-items-center rounded-xl bg-emerald-600 text-xl shadow shadow-emerald-600/40"
+        >
+          🍎
+        </span>
+        کالری‌شمار
+      </a>
+
+      <div class="flex items-center gap-1 text-sm">
+        <a
+          routerLink="/dashboard"
+          routerLinkActive="bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-white"
+          class="rounded-lg px-3 py-1.5 text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+        >
+          داشبورد
+        </a>
+        <a
+          routerLink="/foods"
+          routerLinkActive="bg-slate-200 text-slate-900 dark:bg-slate-800 dark:text-white"
+          class="rounded-lg px-3 py-1.5 text-slate-500 transition hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+        >
+          فهرست غذاها
+        </a>
+      </div>
+    </div>
+
+    <div class="flex items-center gap-3">
+      <span class="hidden text-sm text-slate-500 sm:block dark:text-slate-400">
+        {{ (user$ | async)?.email }}
+      </span>
+      <button
+        type="button"
+        (click)="toggleTheme()"
+        class="btn-ghost grid size-8 shrink-0 place-items-center rounded-xl p-0"
+        [attr.aria-label]="(isDark$ | async) ? 'تغییر به تم روشن' : 'تغییر به تم تاریک'"
+        [title]="(isDark$ | async) ? 'تم روشن' : 'تم تاریک'"
+      >
+        @if (isDark$ | async) {
+          <!-- خورشید: در حالت تاریک برای رفتن به روشن -->
+          <svg
+            class="size-4"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+          >
+            <circle cx="12" cy="12" r="4" />
+            <path
+              d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"
+            />
+          </svg>
+        } @else {
+          <!-- ماه: در حالت روشن برای رفتن به تاریک -->
+          <svg class="size-4" viewBox="0 0 24 24" fill="currentColor">
+            <path
+              d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"
+            />
+          </svg>
+        }
+      </button>
+      <button type="button" (click)="logout()" class="btn-ghost">
+        خروج
+      </button>
+    </div>
+  </nav>
+</header>

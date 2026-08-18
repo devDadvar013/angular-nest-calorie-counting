@@ -1,0 +1,128 @@
+<main class="relative grid min-h-screen place-items-center overflow-hidden px-4">
+  <!-- پس‌زمینه تزئینی -->
+  <div class="pointer-events-none absolute -top-32 start-1/2 h-96 w-96 -translate-x-1/2 rounded-full bg-emerald-600/20 blur-3xl"></div>
+  <div class="pointer-events-none absolute -bottom-40 end-0 h-80 w-80 rounded-full bg-sky-600/10 blur-3xl"></div>
+
+  <div class="relative w-full max-w-md">
+    <div class="mb-8 text-center">
+      <span
+        class="mx-auto grid size-14 place-items-center rounded-2xl bg-emerald-600 text-3xl shadow-lg shadow-emerald-600/40"
+      >
+        🍎
+      </span>
+      <h1 class="mt-4 text-3xl font-extrabold tracking-tight">کالری‌شمار</h1>
+      <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">
+        @if (mode() === 'login') {
+          ورود به حساب کاربری
+        } @else {
+          ساخت حساب جدید
+        }
+      </p>
+    </div>
+
+    <form
+      [formGroup]="form"
+      (ngSubmit)="submit()"
+      class="card space-y-5 p-6 shadow-xl shadow-black/40"
+    >
+      @if (mode() === 'register') {
+        <div>
+          <label class="mb-1.5 block text-sm font-semibold text-slate-300">
+            نام (اختیاری)
+          </label>
+          <input
+            formControlName="name"
+            type="text"
+            class="input-field text-left"
+            placeholder="مثلاً سارا محمدی"
+            autocomplete="name"
+          />
+        </div>
+      }
+
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-300">
+          ایمیل
+        </label>
+        <input
+          formControlName="email"
+          type="email"
+          dir="ltr"
+          class="input-field text-left"
+          placeholder="you@example.com"
+          autocomplete="email"
+        />
+      </div>
+
+      <div>
+        <label class="mb-1.5 block text-sm font-semibold text-slate-300">
+          رمز عبور
+        </label>
+        <input
+          formControlName="password"
+          type="password"
+          dir="ltr"
+          class="input-field text-left"
+          placeholder="••••••"
+          autocomplete="current-password"
+        />
+      </div>
+
+      @if (error()) {
+        <p class="rounded-xl bg-rose-500/10 px-4 py-2.5 text-sm text-rose-400">
+          {{ error() }}
+        </p>
+      }
+
+      <button
+        type="submit"
+        [disabled]="form.invalid || loggingIn()"
+        class="btn-primary flex w-full items-center justify-center gap-2 py-3"
+      >
+        @if (loggingIn()) {
+          <span
+            class="size-4 animate-spin rounded-full border-2 border-white/40 border-t-white"
+          ></span>
+          در حال پردازش…
+        } @else if (mode() === 'login') {
+          ورود
+        } @else {
+          ثبت‌نام
+        }
+      </button>
+
+      @if (mode() === 'login') {
+        <div
+          class="rounded-xl border border-emerald-500/20 bg-emerald-500/5 px-4 py-2.5 text-center text-xs text-slate-400 dark:text-slate-500"
+        >
+          ورود پیش‌فرض:
+          <span dir="ltr" class="font-semibold text-emerald-500">{{ demoEmail }}</span>
+          /
+          <span dir="ltr" class="font-semibold text-emerald-500">{{ demoPassword }}</span>
+        </div>
+      }
+
+      <p class="text-center text-xs text-slate-500 dark:text-slate-500">
+        @if (mode() === 'login') {
+          حساب ندارید؟
+          <button
+            type="button"
+            (click)="toggleMode()"
+            class="font-semibold text-emerald-500 hover:text-emerald-400"
+          >
+            ثبت‌نام کنید
+          </button>
+        } @else {
+          قبلاً ثبت‌نام کرده‌اید؟
+          <button
+            type="button"
+            (click)="toggleMode()"
+            class="font-semibold text-emerald-500 hover:text-emerald-400"
+          >
+            وارد شوید
+          </button>
+        }
+      </p>
+    </form>
+  </div>
+</main>
