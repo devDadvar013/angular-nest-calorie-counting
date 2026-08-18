@@ -7,6 +7,7 @@ import {
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, catchError, map, of, tap } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { environment } from '../../environments/environment';
 import { User } from '../models/food';
 import {
   TOKEN_STORAGE_KEY,
@@ -39,7 +40,10 @@ export class AuthService {
 
   login(email: string, password: string): Observable<User | null> {
     return this.http
-      .post<AuthResponse>('/api/auth/login', { email, password })
+      .post<AuthResponse>(`${environment.apiUrl}/api/auth/login`, {
+        email,
+        password,
+      })
       .pipe(
         tap((res) => this.persist(res.token, res.user)),
         map((res) => res.user),
@@ -53,7 +57,11 @@ export class AuthService {
     name?: string,
   ): Observable<User | null> {
     return this.http
-      .post<AuthResponse>('/api/auth/register', { email, password, name })
+      .post<AuthResponse>(`${environment.apiUrl}/api/auth/register`, {
+        email,
+        password,
+        name,
+      })
       .pipe(
         tap((res) => this.persist(res.token, res.user)),
         map((res) => res.user),

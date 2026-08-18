@@ -9,6 +9,7 @@ import {
   take,
 } from 'rxjs';
 import { DayTotals, FoodEntry } from '../models/food';
+import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 
 /**
@@ -83,14 +84,14 @@ export class CalorieStore {
     }
     const params = { date: this.todayKey() };
     this.http
-      .get<FoodEntry[]>('/api/entries', { params })
+      .get<FoodEntry[]>(`${environment.apiUrl}/api/entries`, { params })
       .pipe(take(1))
       .subscribe({
         next: (entries) => this.entriesSubject.next(entries),
         error: () => this.entriesSubject.next([]),
       });
     this.http
-      .get<{ goal: number }>('/api/goal')
+      .get<{ goal: number }>(`${environment.apiUrl}/api/goal`)
       .pipe(take(1))
       .subscribe({
         next: (res) => this.goalSubject.next(res.goal),
@@ -107,7 +108,7 @@ export class CalorieStore {
     // به‌روزرسانی خوش‌بینانه
     this.entriesSubject.next([...this.entriesSubject.getValue(), full]);
     this.http
-      .post<FoodEntry>('/api/entries', full)
+      .post<FoodEntry>(`${environment.apiUrl}/api/entries`, full)
       .pipe(take(1))
       .subscribe({
         error: () => this.loadFromServer(), // در صورت خطا، بازگشت به وضعیت سرور
@@ -120,7 +121,7 @@ export class CalorieStore {
       this.entriesSubject.getValue().filter((e) => e.id !== id),
     );
     this.http
-      .delete(`/api/entries/${id}`)
+      .delete(`${environment.apiUrl}/api/entries/${id}`)
       .pipe(take(1))
       .subscribe({
         error: () => this.loadFromServer(),
@@ -133,7 +134,7 @@ export class CalorieStore {
       this.entriesSubject.getValue().filter((e) => e.date !== today),
     );
     this.http
-      .delete('/api/entries', { params: { date: today } })
+      .delete(`${environment.apiUrl}/api/entries`, { params: { date: today } })
       .pipe(take(1))
       .subscribe({
         error: () => this.loadFromServer(),
@@ -144,7 +145,7 @@ export class CalorieStore {
     const value = Math.max(0, Math.round(goal));
     this.goalSubject.next(value);
     this.http
-      .put<{ goal: number }>('/api/goal', { goal: value })
+      .put<{ goal: number }>(`${environment.apiUrl}/api/goal`, { goal: value })
       .pipe(take(1))
       .subscribe({
         error: () => this.loadFromServer(),
