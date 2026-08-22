@@ -77,3 +77,22 @@ npm run serve:ssr:calorie-counter   # اجرای بیلد SSR (پروکسی /api
 - در بیلد SSR، سرور Express همان `/api` را به بک‌اند پروکسی می‌کند (متغیر محیطی `BACKEND_URL` برای تغییر آدرس).
 - پورت بک‌اند با متغیر `API_PORT` قابل تغییر است (پیش‌فرض ۳۰۰۰).
 - `backend/.env` gitignore شده است و حاوی `MONGODB_URI` (رشته اتصال MongoDB Atlas) است.
+
+## استقرار روی Vercel 🚀
+
+Vercel به‌صورت پیش‌فرض فقط خروجی استاتیک Angular را سرو می‌کند و برای مسیرهایی مثل `/dashboard` که فایل استاتیک ندارند **404 می‌دهد** (همان خطای `NOT_FOUND`). برای اجرای SSR روی Vercel دو فایل لازم است که الان در پروژه هستند:
+
+- `vercel.json` — خروجی `dist/calorie-counter/browser` را به‌عنوان استاتیک سرو می‌کند و بقیه مسیرها (`/(.*)`) را به تابع `/api/ssr` بازنویسی (rewrite) می‌کند.
+- `api/ssr/index.mjs` — تابع سرورلس که `reqHandler` بیلد SSR را دوباره export می‌کند تا هر مسیر روی سرور رندر شود.
+
+نکته مهم: در `angular.json` مقدار `security.allowedHosts` برابر `["*.vercel.app"]` تنظیم شده تا رندر سمت سرور روی دامنه‌های Vercel (production و پیش‌نمایش) انجام شود و به CSR سقوط نکند. اگر دامنه اختصاصی اضافه کردید، آن را هم به این لیست اضافه کنید (مثلاً `"calorie.app"`).
+
+استقرار:
+
+```bash
+# با Git Integration — فقط commit و push کنید (بیلد روی سرور Vercel اجرا می‌شود)
+# یا از CLI از ریشه پروژه (نه از پوشه dist):
+npx vercel --prod
+```
+
+> در production، فرانت‌اند به `apiUrl` (فعلاً `https://nest-calorie-number.vercel.app`) وصل می‌شود؛ اگر بک‌اند مستقل ندارید، `environment.production.ts` را خالی بگذارید تا سرور SSR همان `/api` را به بک‌اند پروکسی کند.

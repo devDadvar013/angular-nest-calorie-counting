@@ -1,0 +1,17 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npm run build",
+  "outputDirectory": "dist/calorie-counter/browser",
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/api/ssr"
+    }
+  ],
+  "functions": {
+    "api/ssr/index.mjs": {
+      "runtime": "@vercel/node@3",
+      "maxDuration": 60
+    }
+  }
+}

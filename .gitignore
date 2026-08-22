@@ -12,6 +12,8 @@
 npm-debug.log
 yarn-error.log
 
+
+
 # IDEs and editors
 .idea/
 .project
@@ -40,6 +42,9 @@ yarn-error.log
 testem.log
 /typings
 __screenshots__/
+/next-frontend
+/nuxt-frontend
+/backend
 
 # System files
 .DS_Store
